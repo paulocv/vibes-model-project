@@ -47,8 +47,8 @@ Baseline transmission probabilities of each layer – R = 2.5
 > age_data_path = age_data/age_table_01_x0p5.csv
 
 --- TRANSMISSIBILITY CURVES
-> transm_curves_sympt_path = transmissibility/curves_v03/Symptomatic_5.0.csv
-> transm_curves_asymp_path = transmissibility/curves_v02/asym_5.0.csv
+> transm_curves_sympt_path = transmissibility/viral-dynamics/symptomatic_v01.csv
+> transm_curves_asymp_path = transmissibility/viral-dynamics/asymptomatic_v01.csv
 > normalize_transm_curves = true
 
 --- OUTPUT TO FILES
