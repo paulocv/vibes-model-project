@@ -1,0 +1,8 @@
+cycler
+jupyter
+matplotlib
+numpy
+pandas
+pathos
+scipy
+statsmodels
