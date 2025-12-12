@@ -47,6 +47,21 @@ To check thtat the configuration was successful, run a simple VIBES simulation u
 
 You should see some feedback messages from the engine on your terminal if successful, or an error message if something went wrong (e.g. missing a data file, compilation unsuccessful, failure to link with GSL). 
 
+
 # Steps for reproducing the results
 
+## Running sets of simulations
 
+The `run_beta_grid.py` script is used to call the VIBES engine for a predefined grid of relative infection risk values (the master `beta` parameter). For this script to work, you need to first compile the C++ core VIBES engine.
+
+Having a python interpreter configured with the required libraries, from the root directory of this repository, run:
+
+```
+python run_beta_grid.py inputs/[path_to_input_file] outputs/[path_to_output_dir]
+```
+
+Where
+
+## Postprocessing simulations
+
+## Plotting results
