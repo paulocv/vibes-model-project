@@ -386,3 +386,13 @@ http-client.private.env.json
 # Github Copilot persisted session migrations, see: https://github.com/microsoft/copilot-intellij-feedback/issues/712#issuecomment-3322062215
 .idea/**/copilot.data.migration.*.xml
 
+
+# ============== Custom ignores
+
+# Ignore compiled main executable and related files.
+main
+main.*
+
+# Ignore synthetic pop for now, large file.
+networks/synthpop_mistry2021/persons_indx_Indiana.txt
+
