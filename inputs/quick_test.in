@@ -1,0 +1,92 @@
+--- MODEL PARAMETERS
+Baseline transmission probabilities of each layer
+> beta_h = 1.6
+> beta_s = 1.0
+> beta_w = 1.0
+> beta_c = 1.0
+
+--- BEHAVIORAL RESPONSES
+> rnd_ptest_probab = 0.00425 # 0.00425  # Probability of trying a positive test at random at each STEP.
+> so_ptest_probab = 0.90        # Probability of trying a positive test after onset of symptoms
+-
+> ct_probab = 0.90           # Probability of engaging in contact tracing
+> ct_comply_probab_h = 1.00  # Contact tracing compliance (and positive testing): household
+> ct_comply_probab_s = 0.90  # Contact tracing compliance (and positive testing): schools
+> ct_comply_probab_w = 0.80  # Contact tracing compliance (and positive testing): workplace
+> ct_comply_probab_c = 0.05  # Contact tracing compliance (and positive testing): community
+-
+> skip_ptest_at_ct = true           # If true, contact tracing targets engage behavior regardless of positive-testing.
+> trigger_ct_tgt_household = false   # If true, contact tracing targets also isolate their housemates.
+-
+> ptest_delay = 0.25      # Delay (in days) between a ptest trigger and the actual ptest
+> ptest_res_delay = 0.0  # Delay (in days) between a ptest execution and its effect (e.g. delay for results to be shown)
+> ct_delay = 2.0         # Delay between a contact tracing trigger and its execution
+-
+> p_behav = 0.8      # Probability of actually engaging a behavioral response after being triggered
+> behav_path = behav_change/metrics_paper/00d-14d.csv
+
+# RELEASE STRATEGIES
+> p_test_rls = 0.5   # Probability that an individual will attempt release-testing (test to end behavior)
+> p_timed_rls = 0.1  # Probability that an individual will do timed release (before the behavioral curve ends)
+-
+> timed_rls_delay = 5.0         # Time in days for the timed release (since behavioral engagement)
+> rls_test_first_delay = 3.0    # Delay between behavior engagement and the first release test (in days) (can't be zero)
+> rls_test_repeat_delay = 2.0   # Delay between a positive release test and the next attempt (can't be zero)
+> rls_delay = 0.25              # Delay between a negative test and the release.
+> p_rls_ptest_comply = 0.95     # Probability of complying to the positive result of a release test (i.e., continuing the behavior). Else, immediate release.
+> rls_test_num_negative = 2     # Number of consecutive negative tests required to release.
+
+# POSITIVE/NEGATIVE TESTING PARAMETERS
+> ptest_p0 = 0.90          # Probability of testing positive with viral load asymptotically close to zero
+> ptest_saturate = 0.15    # Level of viral load in which ptest probability is 1
+
+--- INDIVIDUAL TRANSMISSIBILITY
+> use_transm_gamma = true
+> transm_gamma_shape = 0.242        # Transm. heterogeneity: param k (a) (power-law rise)
+> transm_gamma_scale = 4.132231     # Transm. heterogeneity: param theta (b) (exponential decay)
+> sympt_transm_coef = 2.0           # Symptomatic nodes will multiply their own transmissibility value by this extra factor.
+
+--- SIMULATION PARAMETERS
+> max_steps = 6000
+> step_dt = 0.25
+> rnd_seed = 1  # Set to 0 for time-based
+
+> init_mode = num   # num, node, frac, nodeset
+> init_data = 30
+
+--- POPULATION PARAMETERS
+> population_path = networks/res_network/persons_indx_Indiana.txt
+> age_data_path = age_data/age_table_01.csv
+
+--- TRANSMISSIBILITY CURVES
+> transm_curves_sympt_path = transmissibility/curves_v03/Symptomatic_5.0.csv
+> transm_curves_asymp_path = transmissibility/curves_v02/asym_5.0.csv
+> normalize_transm_curves = true
+
+--- OUTPUT TO FILES
+> export_r_and_tg_series = true
+> export_status_series = true
+> export_tg_histogram = true
+> export_node_event_data = true
+> export_symptom_series = true
+> export_presence_series = true
+> export_interv_series = true
+> export_event_logs = true
+> export_sec_attack_rate = true
+
+Optional scalar metrics
+> window_start_thres = 1000  # Windowed metrics start being calculated at this cumulative number of infections
+> window_end_thres = 7000    # Windowed metrics end at this cumulative infections threshold
+
+--- EXECUTIONS/RUNS
+> num_execs = 1
+> exec_prefix = run
+> exec_start_index = 0
+
+--- INTERACTIVE SIMULATION
+> use_param_change = false
+> param_change_path = interactive_simu/c_events.pchange
+
+--- MISC
+> merge_u_into_s = true  # Whether universities must be included as schools too.
+> simulate_r_index = false
