@@ -1,0 +1,3 @@
+[submodule "vibes-core"]
+	path = vibes-core
+	url = https://github.com/paulocv/vibes-core.git
