@@ -44,7 +44,7 @@ Baseline transmission probabilities of each layer – R = 2.5
 
 --- POPULATION PARAMETERS
 > population_path = networks/res_network/persons_indx_Indiana.txt
-> age_data_path = age_data/age_table_01.csv  # age_data/age_table_01_x1p5.csv
+> age_data_path = age_data/age_table_01.csv
 
 --- TRANSMISSIBILITY CURVES
 > transm_curves_sympt_path = transmissibility/curves_v03/Symptomatic_5.0.csv
