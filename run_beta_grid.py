@@ -40,6 +40,7 @@ class Params:
     do_remove_tmp = True
     """If True, temporary input files created for each simulation are removed after execution."""
 
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Process a sequence of execution sets.")
 
@@ -79,7 +80,6 @@ def run_simulation_set(args, other_args):
             Params.seed_leap = int(main_input_dict["num_execs"])  # Num exec from input file
         else:
             Params.seed_leap = int(sys.argv[i_numexec + 1])  # Num exec from program call
-
 
     # Preparation
     # -----------

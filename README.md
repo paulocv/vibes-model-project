@@ -2,6 +2,11 @@
 
 _General details of the project and the model_
 
+Jump to:
+
+- [Configuration guide](#configuration-guide)
+- [Steps for reproducing the results](#steps-for-reproducing-the-results)
+
 # Configuration guide
 
 ## Requisites
@@ -65,7 +70,7 @@ The third command may take a few minutes to run. To check if the environment cre
 python run_beta_grid.py inputs/quick_test.in outputs/tests/beta_grid_test
 ```
 
-# Steps for reproducing the results
+# General usage
 
 ## Running sets of simulations
 
@@ -77,8 +82,36 @@ Having a python interpreter configured with the required libraries, from the roo
 python run_beta_grid.py [path_to_input_file] [path_to_output_dir] [extra-args]
 ```
 
-Where [path_to_input_file]
+Where [path_to_input_file] should be replaced by the path to an parameters file in the `inputs` directory, [path_to_output_dir] should be the path to the desired folder where results should be stored (preferably inside `outputs`), and [extra-args] can be replaced by command line arguments that are accepted either by the `run_beta_grid.py` script or the C++ VIBES engine.
+
 
 ## Postprocessing simulations
 
-## Plotting results
+### Time series from a single simulation
+Time-dependent metrics can be calculated from the results of each call to the VIBES core engine (the `./main` executable) using the `analysis/postprocess_time_series.py` script. Assuming your terminal is in the root of the repository, call:
+```shell
+python analysis/postprocess_time_series.py [path_to_output_dir]
+```
+
+Where [path_to_output_dir] should be replaced by the path informed to the `./main` script, or to one of the simulations created by `run_beta_grid.py`. This will aggregate multiple stochastic runs with the same set of parameters.
+
+### Scalar metrics from a set of simulations
+
+You can postprocess simulation sets created with `run_beta_grid.py` using the `analysis/postprocess_beta_grid.py`. From the root of this repository, run:
+
+```shell
+python analysis/postprocess_beta_grid.py [path_to_output_dir]
+```
+
+Where in this case [path_to_output_dir] is the output path informed to `run_beta_grid.py`, which should contain multiple simulation output subdirectories prefixed with `sim_`. The prefix can be modified with the `-s` or `--sim-prefix` command-line argument. For a list of all arguments, you can run:
+
+```shell
+python analysis/postprocess_beta_grid.py --help
+```
+Or check the source code.  
+
+
+[//]: # (## Plotting results)
+
+
+# Steps for reproducing the results
