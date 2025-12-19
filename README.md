@@ -1,10 +1,13 @@
 # VIBES: A Multi-Scale Modeling Approach Integrating Within-Host and Between-Hosts Dynamics in Epidemics
 
+![Banner: VIBES - Viral dynamics Individual-Based Epidemic Simulator](docs/assets/VIBES_GH_banner.png)
+
 _General details of the project and the model_
 
 Jump to:
 
 - [Configuration guide](#configuration-guide)
+- [General usage](#general-usage)
 - [Steps for reproducing the results](#steps-for-reproducing-the-results)
 
 # Configuration guide
@@ -20,9 +23,9 @@ You must have the following software installed in order to run the VIBES core co
 Additionally, to reproduce all results from the papers, you may need:
 
 - python (version 3.9.7 was used in the development)
-- Required python libraries (see [requirements.in](/requirements.in)
+- Required python libraries (see [requirements.in](/requirements.in))
 
-## Downloading necessary files
+## Downloading the necessary files
 
 Clone this repository and its submodules using git:
 
@@ -42,9 +45,7 @@ On a Unix system (Linux, MacOS), you can use the `compile_main.sh` script that c
 
 If compilation is successful, the command should return with no messages after a few seconds.
 
-## Running a test simulation
-
-To check that the configuration was successful, run a simple VIBES simulation using this command from the root of this repository:
+To check that configuration and compilation were successful, run a simple VIBES simulation using this command from the root of this repository:
 
 ```bash
 ./main inputs/quick_test.in outputs/quick_test
@@ -115,3 +116,7 @@ Or check the source code.
 
 
 # Steps for reproducing the results
+
+This guide shows how to re-run and postprocess simulations from the following publication: [Ventura et al. 2025, arXiv](https://arxiv.org/abs/2508.13354).
+
+
