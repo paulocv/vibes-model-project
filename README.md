@@ -119,4 +119,7 @@ Or check the source code.
 
 This guide shows how to re-run and postprocess simulations from the following publication: [Ventura et al. 2025, arXiv](https://arxiv.org/abs/2508.13354).
 
+## Documentation of output files
 
+- Single execution outputs: https://github.com/paulocv/vibes-core/blob/main/docs/output_files.md
+- 
