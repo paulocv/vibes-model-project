@@ -117,9 +117,20 @@ Or check the source code.
 
 # Steps for reproducing the results
 
-This guide shows how to re-run and postprocess simulations from the following publication: [Ventura et al. 2025, arXiv](https://arxiv.org/abs/2508.13354).
+This guide shows how to re-run and postprocess simulations published in [Ventura et al. 2025, arXiv](https://arxiv.org/abs/2508.13354).
 
-## Documentation of output files
+## Running and processing main analysis simulations
+
+In the paper, we ran a beta grid for the VIBES model without interventions and with 100% isolation of symptomatic infections, both with 50 independent executions for each value of beta. To reproduce these simulations, run the following commands on a terminal open in the root of this repository:
+```bash
+python run_beta_grid.py inputs/model_paper_in/vl_model_baseline.in outputs/model_paper_out/vl_model_baseline -n 50
+python run_beta_grid.py inputs/model_paper_in/vl_model_symp-isol.in outputs/model_paper_out/vl_model_symp-isol -n 50
+```
+
+This should create the `outputs/model_paper_out` directory and populate it with results from the simulations. To postprocess these simulations and obtain the data files that were used for the main text Figures 2 and 3, run:
+
+
+# Documentation of output files
 
 - Single execution outputs: https://github.com/paulocv/vibes-core/blob/main/docs/output_files.md
 - 
