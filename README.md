@@ -9,6 +9,7 @@ Jump to:
 - [Configuration guide](#configuration-guide)
 - [General usage](#general-usage)
 - [Steps for reproducing the results](#steps-for-reproducing-the-results)
+- [Documentation of output files](#documentation-of-output-files)
 
 # Configuration guide
 
@@ -121,7 +122,7 @@ This guide shows how to re-run and postprocess simulations published in [Ventura
 
 ## Running and processing main analysis simulations
 
-In the paper, we ran a beta grid for the VIBES model without interventions and with 100% isolation of symptomatic infections, both with 50 independent executions for each value of beta. To reproduce these simulations, run the following commands on a terminal open in the root of this repository:
+In the paper, we ran a beta grid for the VIBES model without interventions and with 100% isolation of symptomatic infections, both with 50 independent executions for each value of beta. To reproduce these simulations, run the following commands on a terminal open in the root of this repository (this may take several minutes to hours and create ~50 gigabytes in files):
 ```bash
 python run_beta_grid.py inputs/model_paper_in/vl_model_baseline.in outputs/model_paper_out/vl_model_baseline -n 50
 python run_beta_grid.py inputs/model_paper_in/vl_model_symp-isol.in outputs/model_paper_out/vl_model_symp-isol -n 50
@@ -129,8 +130,70 @@ python run_beta_grid.py inputs/model_paper_in/vl_model_symp-isol.in outputs/mode
 
 This should create the `outputs/model_paper_out` directory and populate it with results from the simulations. To postprocess these simulations and obtain the data files that were used for the main text Figures 2 and 3, run:
 
+```bash
+analysis/postprocess_beta_grid.py outputs/model_paper_out/vl_model_baseline
+analysis/postprocess_beta_grid.py outputs/model_paper_out/vl_model_symp-isol
+```
+
+Which should result in additional files inside each of the output directories. The `seqsets_analysis.csv` contain most of the data needed to reproduce Figures 2 and 3 (see below for full details on the output files). Additionally, Supplementary Figures S3 and S4 use data from `outputs/model_paper_out/vl_model_baseline/sim_0001/run_00000`. 
+
+> Notice: Since different computer systems implement different random number generation mechanisms, results should be similar but numerically different from the ones presented in our paper.
+
+## Running and processing sensitivity analysis simulations
+
+Run the following additional simulations (it may take several hours and require additional ~250 gigabytes of permanent storage):
+
+```bash
+# Distribution of individual infectiousness
+python run_beta_grid.py inputs/model_paper_in/sensitivity_in/no-gamma_in/no-gamma.in outputs/model_paper_out/sensitivity/no-gamma -n 50
+
+# Probability of developing symptoms
+python run_beta_grid.py inputs/model_paper_in/sensitivity_in/probab-sympt_in/x0p5_no-isol.in outputs/model_paper_out/sensitivity/probab-sympt/x0p5_no-isol -n 50
+python run_beta_grid.py inputs/model_paper_in/sensitivity_in/probab-sympt_in/x1p5_no-isol.in outputs/model_paper_out/sensitivity/probab-sympt/x1p5_no-isol -n 50
+
+# Infectiousness of symptomatic individuals relative to asymptomatic ones
+python run_beta_grid.py inputs/model_paper_in/sensitivity_in/sympt_transm_coef_in/x2p0_no-isol_readjusted.in outputs/model_paper_out/sensitivity/sympt_transm_coef/x2p0_no-isol_readjusted -n 50
+python run_beta_grid.py inputs/model_paper_in/sensitivity_in/sympt_transm_coef_in/x3p0_no-isol_readjusted.in outputs/model_paper_out/sensitivity/sympt_transm_coef/x3p0_no-isol_readjusted -n 50
+python run_beta_grid.py inputs/model_paper_in/sensitivity_in/sympt_transm_coef_in/x4p0_no-isol_readjusted.in outputs/model_paper_out/sensitivity/sympt_transm_coef/x4p0_no-isol_readjusted -n 50
+python run_beta_grid.py inputs/model_paper_in/sensitivity_in/sympt_transm_coef_in/x5p0_no-isol_readjusted.in outputs/model_paper_out/sensitivity/sympt_transm_coef/x5p0_no-isol_readjusted -n 50
+```
+
+Postprocess the files by running `postprocess_beta_grid.py` with all outputs:
+```bash
+# Distribution of individual infectiousness
+python postprocess_beta_grid.py outputs/model_paper_out/sensitivity/no-gamma
+
+# Probability of developing symptoms
+python postprocess_beta_grid.py inputs/model_paper_in/sensitivity_in/probab-sympt_in/x0p5_no-isol.in outputs/model_paper_out/sensitivity/probab-sympt/x0p5_no-isol -n 50
+python postprocess_beta_grid.py inputs/model_paper_in/sensitivity_in/probab-sympt_in/x1p5_no-isol.in outputs/model_paper_out/sensitivity/probab-sympt/x1p5_no-isol -n 50
+
+# Infectiousness of symptomatic individuals relative to asymptomatic ones
+python postprocess_beta_grid.py outputs/model_paper_out/sensitivity/sympt_transm_coef/x2p0_no-isol_readjusted
+python postprocess_beta_grid.py outputs/model_paper_out/sensitivity/sympt_transm_coef/x3p0_no-isol_readjusted
+python postprocess_beta_grid.py outputs/model_paper_out/sensitivity/sympt_transm_coef/x4p0_no-isol_readjusted
+python postprocess_beta_grid.py outputs/model_paper_out/sensitivity/sympt_transm_coef/x5p0_no-isol_readjusted
+```
+
+The files produced from the above postprocessing, along with the main analysis files, should provide all data needed to reproduce Supplementary Figures S6-S8. Finally, to calculate time-dependent metrics and reproduce Supplementary Figure S5, you must run:
+
+```bash
+python analysis/postprocess_time_series.py outputs/model_paper_out/vl_model_baseline/sim_0001/
+python analysis/postprocess_time_series.py outputs/model_paper_out/vl_model_baseline/sim_0002/
+python analysis/postprocess_time_series.py outputs/model_paper_out/vl_model_baseline/sim_0004/
+```
 
 # Documentation of output files
 
-- Single execution outputs: https://github.com/paulocv/vibes-core/blob/main/docs/output_files.md
-- 
+- VIBES engine outputs (from calling `main` and `run_beta_grid.py`): https://github.com/paulocv/vibes-core/blob/main/docs/output_files.md
+- Postprocessed outputs from running `postprocess_beta_grid.py`: 
+
+
+## Outputs from `postprocess_beta_grid.py`
+
+TODO
+
+
+## Outputs from `postprocess_time_series.py`
+
+TODO
+
