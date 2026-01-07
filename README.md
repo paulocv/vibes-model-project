@@ -193,16 +193,6 @@ python analysis/postprocess_time_series.py outputs/model_paper_out/vl_model_base
 
 # Documentation of output files
 
-- VIBES engine outputs (from calling `main` and `run_beta_grid.py`): https://github.com/paulocv/vibes-core/blob/main/docs/output_files.md
-- Postprocessed outputs from running `postprocess_beta_grid.py`: 
+- Outputs from the core VIBES engine (through calling `./main`) are documented here: [https://github.com/paulocv/vibes-core/blob/main/docs/output_files.md](https://github.com/paulocv/vibes-core/blob/main/docs/output_files.md)
 
-
-## Outputs from `postprocess_beta_grid.py`
-
-TODO
-
-
-## Outputs from `postprocess_time_series.py`
-
-TODO
-
+- Outputs from the python scripts from this repository are documented here: [docs/outputs.md](docs/outputs.md)
