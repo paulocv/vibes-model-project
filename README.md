@@ -2,7 +2,16 @@
 
 ![Banner: VIBES - Viral dynamics Individual-Based Epidemic Simulator](docs/assets/VIBES_GH_banner.png)
 
-_General details of the project and the model_
+A multi-scale modeling framework for respiratory infectious diseases
+that explicitly integrates viral dynamics based on patient-level data with population-level transmission on a data-driven network of social contacts.
+
+This repository holds the code used for this publication:
+
+> [Ventura, P. C., Jeong, Y. D., Litvinova, M., Kummer, A. G., Iwami, S., Yu, H., ... & Ajelli, M. (2025). VIBES: A Multi-Scale Modeling Approach Integrating Within-Host and Between-Hosts Dynamics in Epidemics. arXiv preprint arXiv:2508.13354.](https://arxiv.org/abs/2508.13354)
+
+This repository is licensed under the permissive GNU General Public License, but please cite the original publication if you use the code in any scientific project.
+
+The core Viral Dynamics Individual-Based Epidemic Simulator (VIBES) code lives on a [separate repository](https://github.com/paulocv/vibes-core) and used here as a submodule. For this reason, you need to git clone this repo with the `--recurse-submodules` option.
 
 Jump to:
 
