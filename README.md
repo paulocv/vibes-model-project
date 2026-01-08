@@ -83,6 +83,16 @@ python run_beta_grid.py inputs/quick_test.in outputs/tests/beta_grid_test
 
 # General usage
 
+## Running VIBES once
+
+After the VIBES engine is compiled, you can run it to produce a sequence of independent executions with the same parameters by calling the `./main` executable with a path to the input file and the output directory:
+
+```bash
+./main [path_to_input_file] [path_to_output_dir] [extra_args]
+```
+
+Full documentation on running the engine can be found in the VIBES core repository: [github.com/paulocv/vibes-core](https://github.com/paulocv/vibes-core)
+
 ## Running sets of simulations
 
 The `run_beta_grid.py` script is used to call the VIBES engine for a predefined grid of relative infection risk values (the master `beta` parameter). For this script to work, you first need to compile the core VIBES engine from its C++ code into the `./main` executable.
