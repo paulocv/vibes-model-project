@@ -113,6 +113,7 @@ def main():
         calc_attack_rates=False,  # Not implemented
         calc_presymp_transm=True,
         calc_test_behav_rates=True,
+        calc_latent_periods=True,
 
         export=True,
         plot=True,  # Not used yet
@@ -147,7 +148,9 @@ def main():
     pool = ProcessPool(ncpus=num_threads)
     final_df = pd.DataFrame()
     final_samples_df_list = list()
-    hists = {key: list() for key in ["tg", "R", "serialint", "tass"]}  # Stores lists of histograms
+    hists = {key: list() for key in [
+        "tg", "R", "serialint", "tass", "avg_r_vs_latent_period", "avg_r_vs_eff_infec_period"
+    ]}  # Stores lists of histograms
 
     print("Importing and calculating individual stats...")
 
@@ -192,7 +195,6 @@ def main():
                 l.append(hist_dict[key])
             # l.append(hist_dict[key] if key in hist_dict else None)
 
-        print()
 
     # Set index to the exec set labels
     final_df.index = [exs.label for exs in execset_list[:_set_cap]]
@@ -226,6 +228,8 @@ def main():
             ("r", "R"),
             ("serialint", "serialint"),
             ("tass", "tass"),
+            ("avg_r_vs_latent_period", "avg_r_vs_latent_period"),
+            ("avg_r_vs_eff_infec_period", "avg_r_vs_eff_infec_period"),
         ]:
             if len(hists[hist_key]) > 0:
                 export_hist_df(make_hist_fname(file_suffix, args), hists[hist_key], execset_list)
@@ -433,8 +437,12 @@ class ExecResults:
     single execution.
     """
     __slots__ = ["metrics", "cpu_time", "dt", "num_nodes", "TMP",
-                 "tg_hist", "r_hist", "serint_hist", "w_tg_hist", "w_r_hist", "w_serint_hist", "sympt_tg_hist",
-                 "asymp_tg_hist", "tass_hist", "tass_lhists", "max_curve_length", "presymp_transm_samples"]
+                 "tg_hist", "r_hist", "serint_hist", "w_tg_hist", "w_r_hist",
+                 "w_serint_hist", "sympt_tg_hist", "asymp_tg_hist",
+                 "tass_hist", "tass_lhists", "max_curve_length",
+                 "avg_r_vs_latent_period_df", "avg_r_vs_eff_infec_period_df",
+                 "presymp_transm_samples",
+                 ]
 
     def __init__(self):
         self.metrics = dict()
@@ -448,6 +456,8 @@ class ExecResults:
         self.asymp_tg_hist: pd.Series = None
         self.tass_hist: pd.Series = None  # Time-After-Source-Symptoms histogram
         self.tass_lhists: list[pd.Series] = None  # TASS histograms per layer
+        self.avg_r_vs_latent_period_df: pd.DataFrame = None
+        self.avg_r_vs_eff_infec_period_df: pd.DataFrame = None
         self.presymp_transm_samples: pd.Series = None  # ....
 
         # Scalar metrics and parameters
@@ -716,6 +726,7 @@ def calc_single_execution_metrics(data: ExecData, bool_switches: defaultdict, pa
     if bool_switches["calc_serialint_hist"]:
         res.serint_hist = data.node_event_serialint_df["own_serial_time"].value_counts(sort=False)
 
+
     # --- Generation time per source symptoms
     if bool_switches["calc_sympt_tg_hist"]:
 
@@ -824,6 +835,57 @@ def calc_single_execution_metrics(data: ExecData, bool_switches: defaultdict, pa
     if bool_switches["calc_attack_rates"]:
         warnings.warn("\nATTACK RATE not implemented. Skipped...")
 
+    # --- Latent period of infected and infectors
+    if bool_switches["calc_latent_periods"]:
+        df: pd.DataFrame = data.node_event_df
+        _has_infector_mask = df["infec_src"] >= 0  # Exclude index cases (-1)
+
+        # --- Calculate latent period
+        df["latent_period_days"] = (df["transm_start_step"] - df["infec_step"]) * data.dt
+        infector_df = df.set_index("i_node").reindex(df.loc[_has_infector_mask, "infec_src"])
+        pd.Series().mean()
+
+        res.metrics["avg_latent_period_infected"] = df["latent_period_days"].mean(skipna=True)
+        res.metrics["avg_latent_period_infector"] = infector_df["latent_period_days"].mean(skipna=True)
+
+        # --- Calculate the effective infectious period, which depends on latent period
+        # and generation time.
+
+        # # -()- Visit each node and check their secondary infections
+        # _num = df["sum_generation_time"] * data.dt - df["num_second_infecs"] * df["latent_period_days"]
+        # _den = df["num_second_infecs"]
+        # res.metrics["avg_effective_infectious_period"] = (_num.sum() / _den.sum())
+
+        # -()- Visit each node and check their infecion source (same result, but also provides the proper ensemble)
+        # OBS: use `.values` to avoid alignment with index (not the same)
+        own_tg_sr = df.loc[_has_infector_mask, "own_generation_time"] * data.dt
+        src_lp_sr = infector_df["latent_period_days"]
+        res.metrics["avg_effective_infectious_period"] = (
+                own_tg_sr.values - src_lp_sr.values
+        ).mean()
+
+        # --- Histogram-ish: Nr. of secondary infections vs infector latent period (binned for better stats)
+        # _bins = np.arange(0, df["latent_period_days"].max() + data.dt, 1.0)  # 1-day bins
+        res.avg_r_vs_latent_period_df = (
+            df["num_second_infecs"]
+            # .groupby(pd.cut(df["latent_period_days"], bins=_bins))
+            .groupby(np.ceil(df["latent_period_days"]))  # Round up to the next full integer day
+            .agg(["mean", "sum", "size"])
+            .sort_index()
+        )
+
+        # --- Histogram-ish: Nr. of secondary infections vs effective infectious period (binned for better stats)
+        eip_sr = data.dt * df["sum_generation_time"] / df["num_second_infecs"] - df["latent_period_days"]  #  nan if no second. infections
+        #  ^ ^ This is the avg. effective infectious period of each infector: Avg_tg - LP. Unit: Days.
+        # _bins = np.arange(0, _sr.max() + data.dt, 1.0)  # 1-day bins
+        res.avg_r_vs_eff_infec_period_df = (
+            df["num_second_infecs"]
+            # .groupby(pd.cut(df["latent_period_days"], bins=_bins))
+            .groupby(np.ceil(eip_sr))  # Round up to the next full integer day
+            .agg(["mean", "sum", "size"])
+            .sort_index()
+        )
+
     # Finalization
     # ------------
     xtf = time.time()
@@ -871,7 +933,6 @@ def calc_execset_statistics(exec_result_list: list[ExecResults], bool_switches, 
     outb_mask = samp_df["expw_valid"]  # Having a window by number of cases is the criterion for valid outbreak.
     stat_df["frac_valid_outb"] = [outb_mask.mean()]
     filt_samp_df = samp_df.loc[outb_mask]
-    print("WATCHPOINT")
 
     # --- Layer proportions: just the mean is enough
     for lc in LAYER_CHAR:
@@ -901,7 +962,9 @@ def calc_execset_statistics(exec_result_list: list[ExecResults], bool_switches, 
                   [f"avg_gentime_{lc}" for lc in LAYER_CHAR] + \
                   [f"avg_serialint_{lc}" for lc in LAYER_CHAR] + ["ptest_rate", "behav_rate", "behav_frac"] + \
                   ["absence_c", "absence_c_sum"] + \
-                  ["incidence_daily_peak_shifted_t"]:
+                  ["incidence_daily_peak_shifted_t"] + \
+                  ["avg_latent_period_infected", "avg_latent_period_infector", "avg_effective_infectious_period"] \
+            :
         if metric in samp_df:
             series: pd.Series = filt_samp_df[metric]
             calc_metric_stats(series, metric, params, stat_df)
@@ -1013,6 +1076,29 @@ def calc_execset_statistics(exec_result_list: list[ExecResults], bool_switches, 
 
         df.sort_index(inplace=True)
 
+    # Number of secondary cases vs relevant periods (latent, eff. infectious)
+    # ------------------------------------------------------
+    if b["calc_latent_periods"]:
+        # --- Latent period
+        # AGGREGATION METHOD: Add all sums and sizes, then divide.
+        # This means that all individuals accross all executions have
+        # the same weight.
+        df_list = [res.avg_r_vs_latent_period_df for res in exec_result_list]
+        concat_df = pd.concat(df_list, axis=0)
+        df = concat_df[["sum", "size"]].groupby(concat_df.index).sum()
+        df["mean"] = df["sum"] / df["size"]
+
+        hist_dict["avg_r_vs_latent_period"] = df.copy()  # Keep only the mean column, which is the actual metric
+
+        # --- Secondary infections by effective generation time
+        df_list = [res.avg_r_vs_eff_infec_period_df for res in exec_result_list]
+        concat_df = pd.concat(df_list, axis=0)
+        df = concat_df[["sum", "size"]].groupby(concat_df.index).sum()
+        df["mean"] = df["sum"] / df["size"]
+
+        hist_dict["avg_r_vs_eff_infec_period"] = df.copy()  # Keep only the mean column, which is the actual metric
+
+
     # Individual pre-symptomatic infection samples
     # --------------------------------------------
     if b["calc_presymp_transm_samples"] and probe_res.presymp_transm_samples is not None:
@@ -1106,7 +1192,6 @@ def aggregate_exec_hists_variable(hist_seq, normalize=True):
 
     for hist in hist_seq:
         if hist is not None:
-            # No way to do this inplace!??????
             series = series.add(hist, fill_value=0)
 
     if normalize:
