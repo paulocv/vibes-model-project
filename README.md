@@ -5,9 +5,11 @@
 A multi-scale modeling framework for respiratory infectious diseases
 that explicitly integrates viral dynamics based on patient-level data with population-level transmission on a data-driven network of social contacts.
 
-This repository holds the code used for this publication:
+This repository holds the code used for the following publications:
 
-> [Ventura, P. C., Jeong, Y. D., Litvinova, M., Kummer, A. G., Iwami, S., Yu, H., ... & Ajelli, M. (2025). VIBES: A Multi-Scale Modeling Approach Integrating Within-Host and Between-Hosts Dynamics in Epidemics. arXiv preprint arXiv:2508.13354.](https://arxiv.org/abs/2508.13354)
+> [Ventura, P. C., Dam Jeong, Y., Litvinova, M., Kummer, A. G., Iwami, S., Yu, H., ... & Ajelli, M. (2026). VIBES: A multiscale modeling approach integrating within-host and between-hosts dynamics in epidemics. Proceedings of the National Academy of Sciences, 123(13), e2523055123.](https://doi.org/10.1073/pnas.2523055123)
+
+> [Ventura, P. C., Kummer, A. G., Jeong, Y. D., Mhade, S., Iwami, S., Merler, S., ... & Ajelli, M. (2026). The impact of the distributions of the latent and infectious periods on epidemic dynamics. Research Square preprint.](https://doi.org/10.21203/rs.3.rs-11154983/v1)
 
 This repository is licensed under the permissive GNU General Public License, but please cite the original publication if you use the code in any scientific project.
 
@@ -32,8 +34,7 @@ You must have the following software installed in order to run the VIBES core co
 
 Additionally, to reproduce all results from the papers, you may need:
 
-- python (version 3.9.7 was used in the development)
-- Required python libraries (see [requirements.in](/requirements.in))
+- [uv](https://docs.astral.sh/uv/getting-started/installation/), which manages the python interpreter and libraries. The project is pinned to python 3.9 and to the library versions used in the development (see [pyproject.toml](pyproject.toml)); uv downloads the right python version automatically, so you do not need to install it yourself.
 
 ## Downloading the necessary files
 
@@ -67,19 +68,28 @@ You should see some feedback messages from the engine on your terminal if succes
 
 The core VIBES engine is written in C++, but for this project we use python scripts for running multiple simulations, postprocessing outputs and visualizing results. 
 
-To reliably run the python scripts with the same package versions as used in development, we recommend creating an environment and installing packages using the [requirements.txt](requirements.txt)) file. Having `python` and `pip` installed, run:
+The python environment is managed with [uv](https://docs.astral.sh/uv/). The exact interpreter (python 3.9) and package versions used in the development are declared in [pyproject.toml](pyproject.toml) and locked in [uv.lock](uv.lock). From the root of this repository, run:
 
 ```shell
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+uv sync
 ```
 
-The third command may take a few minutes to run. To check if the environment creation was successful, you can run VIBES for multiple infectiousness values using:
+This creates a `.venv` directory with all required packages (it may take a few minutes). You can then either activate the environment and use `python` normally:
+
+```shell
+source .venv/bin/activate
+```
+
+or prefix any python command with `uv run`, without activating anything (e.g. `uv run python run_beta_grid.py ...`). The python commands in the rest of this document are written assuming the environment is activated.
+
+To check if the environment creation was successful, you can run VIBES for multiple infectiousness values using:
 
 ```shell
 python run_beta_grid.py inputs/quick_test.in outputs/tests/beta_grid_test
 ```
+
+> Note: All python scripts must be called from the root of this repository, since they use paths relative to it (e.g. `./main` and `inputs/`).
+
 
 # General usage
 
@@ -97,7 +107,7 @@ Full documentation on running the engine can be found in the VIBES core reposito
 
 The `run_beta_grid.py` script is used to call the VIBES engine for a predefined grid of relative infection risk values (the master `beta` parameter). For this script to work, you first need to compile the core VIBES engine from its C++ code into the `./main` executable.
 
-Having a python interpreter configured with the required libraries, from the root directory of this repository, run:
+Having the python environment configured (see [Configuring the python environment](#configuring-the-python-environment)), from the root directory of this repository, run:
 
 ```
 python run_beta_grid.py [path_to_input_file] [path_to_output_dir] [extra-args]
@@ -137,69 +147,13 @@ Or check the source code.
 
 # Steps for reproducing the results
 
-This guide shows how to re-run and postprocess simulations published in [Ventura et al. 2025, arXiv](https://arxiv.org/abs/2508.13354).
+A full guide for reproducing published results from this code is available in the [`docs/reproducibility_guide.md`](docs/reproducibility_guide.md) file.
 
-## Running and processing main analysis simulations
+Specific guide for each paper:
 
-In the paper, we ran a beta grid for the VIBES model without interventions and with 100% isolation of symptomatic infections, both with 50 independent executions for each value of beta. To reproduce these simulations, run the following commands on a terminal open in the root of this repository (this may take several minutes to hours and create ~50 gigabytes in files):
-```bash
-python run_beta_grid.py inputs/model_paper_in/vl_model_baseline.in outputs/model_paper_out/vl_model_baseline -n 50
-python run_beta_grid.py inputs/model_paper_in/vl_model_symp-isol.in outputs/model_paper_out/vl_model_symp-isol -n 50
-```
+- ["VIBES: A multiscale modeling approach integrating within-host and between-hosts dynamics in epidemics"](docs/reproducibility_guide.md#first-paper)
+- ["The impact of the distributions of the latent and infectious periods on epidemic dynamics"](docs/reproducibility_guide.md#second-paper)
 
-This should create the `outputs/model_paper_out` directory and populate it with results from the simulations. To postprocess these simulations and obtain the data files that were used for the main text Figures 2 and 3, run:
-
-```bash
-analysis/postprocess_beta_grid.py outputs/model_paper_out/vl_model_baseline
-analysis/postprocess_beta_grid.py outputs/model_paper_out/vl_model_symp-isol
-```
-
-Which should result in additional files inside each of the output directories. The `seqsets_analysis.csv` contain most of the data needed to reproduce Figures 2 and 3 (see below for full details on the output files). Additionally, Supplementary Figures S3 and S4 use data from `outputs/model_paper_out/vl_model_baseline/sim_0001/run_00000`. 
-
-> Notice: Since different computer systems implement different random number generation mechanisms, results should be similar but numerically different from the ones presented in our paper.
-
-## Running and processing sensitivity analysis simulations
-
-Run the following additional simulations (it may take several hours and require additional ~250 gigabytes of permanent storage):
-
-```bash
-# Distribution of individual infectiousness
-python run_beta_grid.py inputs/model_paper_in/sensitivity_in/no-gamma_in/no-gamma.in outputs/model_paper_out/sensitivity/no-gamma -n 50
-
-# Probability of developing symptoms
-python run_beta_grid.py inputs/model_paper_in/sensitivity_in/probab-sympt_in/x0p5_no-isol.in outputs/model_paper_out/sensitivity/probab-sympt/x0p5_no-isol -n 50
-python run_beta_grid.py inputs/model_paper_in/sensitivity_in/probab-sympt_in/x1p5_no-isol.in outputs/model_paper_out/sensitivity/probab-sympt/x1p5_no-isol -n 50
-
-# Infectiousness of symptomatic individuals relative to asymptomatic ones
-python run_beta_grid.py inputs/model_paper_in/sensitivity_in/sympt_transm_coef_in/x2p0_no-isol_readjusted.in outputs/model_paper_out/sensitivity/sympt_transm_coef/x2p0_no-isol_readjusted -n 50
-python run_beta_grid.py inputs/model_paper_in/sensitivity_in/sympt_transm_coef_in/x3p0_no-isol_readjusted.in outputs/model_paper_out/sensitivity/sympt_transm_coef/x3p0_no-isol_readjusted -n 50
-python run_beta_grid.py inputs/model_paper_in/sensitivity_in/sympt_transm_coef_in/x4p0_no-isol_readjusted.in outputs/model_paper_out/sensitivity/sympt_transm_coef/x4p0_no-isol_readjusted -n 50
-python run_beta_grid.py inputs/model_paper_in/sensitivity_in/sympt_transm_coef_in/x5p0_no-isol_readjusted.in outputs/model_paper_out/sensitivity/sympt_transm_coef/x5p0_no-isol_readjusted -n 50
-```
-
-Postprocess the files by running `postprocess_beta_grid.py` with all outputs:
-```bash
-# Distribution of individual infectiousness
-python postprocess_beta_grid.py outputs/model_paper_out/sensitivity/no-gamma
-
-# Probability of developing symptoms
-python postprocess_beta_grid.py inputs/model_paper_in/sensitivity_in/probab-sympt_in/x0p5_no-isol.in outputs/model_paper_out/sensitivity/probab-sympt/x0p5_no-isol -n 50
-python postprocess_beta_grid.py inputs/model_paper_in/sensitivity_in/probab-sympt_in/x1p5_no-isol.in outputs/model_paper_out/sensitivity/probab-sympt/x1p5_no-isol -n 50
-
-# Infectiousness of symptomatic individuals relative to asymptomatic ones
-python postprocess_beta_grid.py outputs/model_paper_out/sensitivity/sympt_transm_coef/x2p0_no-isol_readjusted
-python postprocess_beta_grid.py outputs/model_paper_out/sensitivity/sympt_transm_coef/x3p0_no-isol_readjusted
-python postprocess_beta_grid.py outputs/model_paper_out/sensitivity/sympt_transm_coef/x4p0_no-isol_readjusted
-python postprocess_beta_grid.py outputs/model_paper_out/sensitivity/sympt_transm_coef/x5p0_no-isol_readjusted
-```
-
-The files produced from the above postprocessing, along with the main analysis files, should provide all data needed to reproduce Supplementary Figures S6-S8. Finally, to calculate time-dependent metrics and reproduce Supplementary Figure S5, you must run:
-
-```bash
-python analysis/postprocess_time_series.py outputs/model_paper_out/vl_model_baseline/sim_0001/
-python analysis/postprocess_time_series.py outputs/model_paper_out/vl_model_baseline/sim_0002/
-python analysis/postprocess_time_series.py outputs/model_paper_out/vl_model_baseline/sim_0004/
-```
 
 # Documentation of output files
 
