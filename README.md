@@ -147,7 +147,7 @@ Or check the source code.
 
 # Steps for reproducing the results
 
-A full guide for reproducing published results from this code is available in the [`docs/reproducibility_guide.md](docs/reproducibility_guide.md) file.
+A full guide for reproducing published results from this code is available in the [`docs/reproducibility_guide.md`](docs/reproducibility_guide.md) file.
 
 Specific guide for each paper:
 
