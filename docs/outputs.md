@@ -30,7 +30,7 @@ Results of posptprocessing each set of simulations with the same parameters. The
 
 #### CSV content variables
 
-The contents of this data frame contain the estimates of metrics for each set of independent VIBES executions with the same parameters. Most metrics have a mean, median, standard deviation, lower quantile and upper quantile estimates with the respective suffixes: `_mean`, `_median`, `_std`, `_quant_low`, and `_quant_high`. 
+This data frame contains the estimates of metrics for each set of independent VIBES executions with the same parameters. Most metrics have a mean, median, standard deviation, lower quantile and upper quantile estimates with the respective suffixes: `_mean`, `_median`, `_std`, `_quant_low`, and `_quant_high`. 
 
 Many variables are exported within this process. We document here the most relevant ones that were used in our scientific publications, along with their preffixes:
 
@@ -38,6 +38,9 @@ Many variables are exported within this process. We document here the most relev
 - `avg_gentime_h` = Average generation time of infections in households
 - `avg_gentime` = Overall average generation time
 - `avg_gentime_sympt` = Average generation time of symptomatic infectors
+- `avg_effective_infectious_period` = Average effective (realized) infectious period, defined as the time between start of infectious period and each infection.
+- `avg_latent_period_infected` = Average latent period over the ensemble of infected individuals (each infectee counts as one point).
+- `avg_latent_period_infector` = Average latent period over the ensemble of _infectors_. The infector of each infector-infectee pair counts as one point, meaning that the latent period of each individual is accounted _r_ times (_r_ = number of secondary infections).
 - `avg_serialint` = Overall average serial interval
 - `empir_repnum` = Reproduction number calculated from infection chains whose primary infection occurred within the exponential window
 - `exp_growth` = Ggrowth rate, calculated from the exponential fit of the incidence in the exponential phase.
@@ -59,6 +62,8 @@ CSV files with the `seqsets_hist_` preffix contain histograms of some metrics, a
 - `seqsets_hist_tg.csv` = Generation time
 - `seqsets_hist_serialint.csv` = Serial interval
 - `seqsets_hist_tass.csv` = Time of secondary infection relative to time of infector symptom onset. Negative values represent pre-symptomatic transmission.
+- `seqsets_hist_avg_r_vs_eff_infec_period` = Average reproduction number grouped by the length of the effective infectious period. This is not a histogram in the strict sense, but a grouped average.
+- `seqsets_hist_avg_r_vs_latent_period` = Average reproduction number grouped by the length of the latent period. This is not a histogram in the strict sense, but a grouped average.
 
 Generation time histograms are further disaggregated between `sympt` (from symptomatic infectors), `asympt` (from asymptomatic infectors), `window` (within the exponential window) and `total` (overall). Secondary cases and TASS are also disaggregated between `total` and `window`.
 

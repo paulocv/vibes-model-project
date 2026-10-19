@@ -1,0 +1,72 @@
+--- MODEL PARAMETERS
+Baseline transmission probabilities of each layer
+> beta_h = 0.108560
+> beta_s = 0.086140
+> beta_w = 0.065136
+> beta_c = 0.064310
+
+
+--- BEHAVIORAL RESPONSES
+> rnd_ptest_probab = 0.00  # 0.00415, 0.00830 # Probability of trying a positive test at random at each STEP.
+> so_ptest_probab = 0.00   # # Probability of trying a positive test after onset of symptoms
+-
+> ct_probab = 0.00  # Probability of engaging in contact tracing
+> ct_comply_probab_h = 1.00  # Contact tracing compliance (and positive testing): household
+> ct_comply_probab_s = 0.90  # Contact tracing compliance (and positive testing): schools
+> ct_comply_probab_w = 0.90  # Contact tracing compliance (and positive testing): workplace
+> ct_comply_probab_c = 0.20  # Contact tracing compliance (and positive testing): community
+-
+> skip_ptest_at_ct = false  # If true, contact tracing targets engage behavior regardless of positive-testing.
+> trigger_ct_tgt_household = false  # If true, contact tracing targets also isolate their housemates.
+-
+> ptest_delay = 1.0  # Delay (in days) between a ptest trigger and the actual ptest
+> ptest_res_delay = 0.0  # Delay (in days) between a ptest execution and its effect (e.g. delay for results to be shown)
+> ct_delay = 0.0  # Delay between a contact tracing trigger and its execution
+-
+# > behav_path = behav_change/metrics_paper/00d-07d.csv
+> behav_path = behav_change/metrics_paper/00d-14d.csv
+# > behav_path = behav_change/metrics_paper/00d-21d.csv
+
+--- TRANSMISSIBILITY CURVES
+Traditional curves:
+> transm_curves_sympt_path = transmissibility/geometric/v01_sympt.csv
+> transm_curves_asymp_path = transmissibility/geometric/v01_asymp.csv
+
+> normalize_transm_curves = false
+
+--- INDIVIDUAL TRANSMISSIBILITY
+> use_transm_gamma = false
+> transm_gamma_shape = 0.235  # 0.242  # Transm. heterogeneity: param k (a) (power-law rise)
+> transm_gamma_scale = 4.25531914893617  # 4.132231    # Transm. heterogeneity: param theta (b) (exponential decay)
+> sympt_transm_coef = 1.0  # Symptomatic nodes will multiply their own transmissibility value by this extra factor.
+
+--- SIMULATION PARAMETERS
+> max_steps = 6000
+> step_dt = 0.25
+> rnd_seed = 05001  # Set to 0 for time-based
+
+> init_mode = num   # num, node, frac, nodeset
+> init_data = 30
+
+--- POPULATION PARAMETERS
+> population_path = networks/synthpop_mistry2021/persons_indx_Indiana.txt
+> age_data_path = age_data/age_table_01.csv
+
+--- OUTPUT TO FILES
+> export_r_and_tg_series = true
+> export_event_logs = false
+> export_status_series = true
+> export_tg_histogram = true
+> export_node_event_data = true
+> export_symptom_series = false
+> export_presence_series = true
+> export_sec_attack_rate = false
+
+--- EXECUTIONS/RUNS
+> num_execs = 1
+> exec_prefix = run
+> exec_start_index = 0
+
+--- MISC
+> merge_u_into_s = true  # Whether universities must be included as schools too.
+> simulate_r_index = false
